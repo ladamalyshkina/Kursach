@@ -1,0 +1,7 @@
+create table tasks
+(id_task serial primary key,
+description text, 
+task_date date)
+
+insert into tasks (id_task, description, task_date) values
+(1,'lyalyalya','2024-05-15');
