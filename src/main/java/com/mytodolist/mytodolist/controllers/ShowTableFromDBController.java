@@ -34,7 +34,7 @@ public class ShowTableFromDBController {
 
     @GetMapping("/showResults")
     public String showResults(Model model) {
-        var Kek = mainService.readAll();
+        var Kek = mainService.readAllSortedByDate();
 
         if (!Kek.isEmpty()) {
             ToDoTask firstElement = Kek.get(0);
@@ -49,28 +49,26 @@ public class ShowTableFromDBController {
         return "resultsTemplate";
     }
     @PostMapping(value = "/updateTask/{id}") //@RequestBody ToDoTask client
-    public String update(@RequestBody String description,@PathVariable (value = "id") long id  ) {
+    public String update(@RequestParam String description,@PathVariable (value = "id") long id  ) {
         System.out.println("UPDATE");
         ToDoTask task = repo.findById(id).orElseThrow();
-        // Optional<ToDoTask> task = repo.findById(id);
         task.setDescription(description);
         repo.save(task);
         return "redirect:/showResults";
     }
 
     @PostMapping ("/some/add")
-    public String add(@RequestBody String description) {
+    public String add(@RequestParam String description) {
         Boolean status = false;
         ToDoTask task = new ToDoTask(description);
         repo.save(task);
         return "redirect:/showResults";
     }
 
-    @RequestMapping(value = "/deleteTask/{id}") //@RequestBody ToDoTask client
+    @RequestMapping(value = "/deleteTask/{id}") //@RequestBody ToDoTask task
     public String delete(@PathVariable (value = "id") long id  ) {
         System.out.println("DELETE");
-
-       repo.deleteById(id);
+        repo.deleteById(id);
         return "redirect:/showResults";
 
 

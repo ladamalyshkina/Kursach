@@ -130,6 +130,7 @@
         <div class="task-container" style="display: flex;"  th:each="task : ${tasks}">
          <!--   <h3 class="task-id" th:text="${task.id}"></h3>-->
             <form th:action="@{/updateTask/{id}(id=${task.id})}" method="post">
+                <input class="form-check-input flex-shrink-0" type="checkbox" th:value="${task.status}" checked=""style="font-size: 1.375em;" wfd-id="id26">
                 <input type="text" th:value="${task.description}" name="description" style="width: 500px; margin-right: 10px;" class="form-control" />
                 <input type="submit" value="Update" />
             </form>

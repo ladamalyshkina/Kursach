@@ -3,6 +3,7 @@ package com.mytodolist.mytodolist.services;
 import com.mytodolist.mytodolist.models.ToDoTask;
 import com.mytodolist.mytodolist.repositories.TaskToDoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,7 +28,10 @@ public class MainService {
         System.out.println("READ");
         return taskToDoRepository.findAll();
     }
-
+    public List<ToDoTask> readAllSortedByDate() {
+        System.out.println("READ SORTED BY DATE");
+        return taskToDoRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+    }
 //    @Override
 //    public ToDoTask read(long id) {
 //        return taskToDoRepository.getOne(id);
