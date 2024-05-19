@@ -3,6 +3,8 @@ package com.mytodolist.mytodolist.models;
 import jakarta.persistence.*;
 
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 
@@ -17,7 +19,7 @@ public class ToDoTask {
     @Column(name = "description")
     private String description;
     @Column (name = "task_date")
-    private Date taskDate;
+    private LocalDate taskDate;
 
     @Column(name = "status")
     private Boolean status = false;
@@ -44,21 +46,23 @@ public class ToDoTask {
         this.description = description;
         return description;
     }
-    public Date getDate() {return taskDate;}
+    public LocalDate getDate() {return taskDate;}
 
     public void setDate() {
         // Получаем текущую дату и время
-        long currentTimeMillis = System.currentTimeMillis();
+       // long currentTimeMillis = System.currentTimeMillis();
 
+        this.taskDate = LocalDate.now();
         // Создаем объект java.sql.Date на основе текущего времени
-        this.taskDate = new Date(currentTimeMillis);
+     //   this.taskDate = new LocalDateTime(currentTimeMillis);
     }
-    public Date setDefaultDate() {
-        // Получаем текущую дату и время
-        long currentTimeMillis = System.currentTimeMillis();
-
-        // Создаем объект java.sql.Date на основе текущего времени
-        return new Date(currentTimeMillis);
+    public LocalDate setDefaultDate() {
+        return LocalDate.now();
+//        // Получаем текущую дату и время
+//        long currentTimeMillis = System.currentTimeMillis();
+//
+//        // Создаем объект java.sql.Date на основе текущего времени
+//        return new Date(currentTimeMillis);
     }
 
     public void setStatus(Boolean status)
@@ -70,12 +74,17 @@ public class ToDoTask {
         return status;
     }
 
-    public ToDoTask(){}
+    public ToDoTask()
+    {
+        this.taskDate = setDefaultDate();
+      //  this.status = status;
+
+    }
     public ToDoTask(String description)
     {
         this.description = description;
         this.taskDate = setDefaultDate();
-        this.status = status;
+        //this.status = status;
 
 
     }

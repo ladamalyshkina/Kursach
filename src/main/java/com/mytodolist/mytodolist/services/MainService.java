@@ -48,6 +48,9 @@ public class MainService {
         return false;
     }
 
+    public void deleteAll() {
+      taskToDoRepository.deleteAll();
+    }
 
     public boolean delete(long id) {
         if (taskToDoRepository.existsById(id)) {

@@ -48,11 +48,56 @@ public class ShowTableFromDBController {
 
         return "resultsTemplate";
     }
+
+    @PostMapping(value = "/updateStatus/{id}") //@RequestBody ToDoTask client
+    public String updateStatus(@RequestParam Boolean status,@PathVariable (value = "id") long id  ) {
+        System.out.println("UPDATE STATUS");
+        ToDoTask task = repo.findById(id).orElseThrow();
+
+        task.setStatus(status);
+        repo.save(task);
+        return "redirect:/showResults";
+    }
     @PostMapping(value = "/updateTask/{id}") //@RequestBody ToDoTask client
     public String update(@RequestParam String description,@PathVariable (value = "id") long id  ) {
         System.out.println("UPDATE");
         ToDoTask task = repo.findById(id).orElseThrow();
         task.setDescription(description);
+     //   System.out.println("STATUS"+ status);
+     //   task.setStatus(status);
+        repo.save(task);
+        return "redirect:/showResults";
+    }
+
+    @PostMapping(value = "/updateTask2/{id}") //@RequestBody ToDoTask client
+    public String update2(@PathVariable (value = "id") long id, @RequestParam String description,@RequestParam Boolean status ) {
+        System.out.println("UPDATE");
+        ToDoTask task = repo.findById(id).orElseThrow();
+        task.setDescription(description);
+        task.setStatus(status);
+        //   System.out.println("STATUS"+ status);
+        //   task.setStatus(status);
+        repo.save(task);
+        return "redirect:/showResults";
+    }
+
+    @PostMapping(value = "/updateTaskStatus/{id}") //@RequestBody ToDoTask client
+    public String updateTaskStatus(@PathVariable (value = "id") long id, @RequestParam (value = "status", required = false) String status ) {
+        ToDoTask task = repo.findById(id).orElseThrow();
+        if (status!=null) {
+            task.setStatus(true);
+            System.out.println("UPDATE");
+            System.out.println("STATUS" + status);
+        }
+        else {
+            task.setStatus(false);
+            System.out.println("STATUS IS NULL");
+        }
+
+//
+//        task.setStatus(status);
+//          System.out.println("STATUS"+ status);
+        //   task.setStatus(status);
         repo.save(task);
         return "redirect:/showResults";
     }
@@ -69,6 +114,15 @@ public class ShowTableFromDBController {
     public String delete(@PathVariable (value = "id") long id  ) {
         System.out.println("DELETE");
         repo.deleteById(id);
+        return "redirect:/showResults";
+
+
+    }
+
+    @RequestMapping(value = "/deleteAllTasks") //@RequestBody ToDoTask task
+    public String deleteAll( ) {
+        //System.out.println("DELETE");
+        repo.deleteAll();
         return "redirect:/showResults";
 
 

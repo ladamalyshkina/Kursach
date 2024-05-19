@@ -11,7 +11,7 @@ public class DatabaseCheckController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @GetMapping("/checkdbconnection")
+    @GetMapping("/checkDBConnection")
     public String checkDBConnection() {
         try {
             jdbcTemplate.execute("SELECT * from tasks");

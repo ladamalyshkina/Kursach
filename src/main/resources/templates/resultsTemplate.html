@@ -114,35 +114,99 @@
     <title>Todo List</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <link rel = "stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    <!--<style>
-        .task-container {
-            display: flex;
-            flex-direction: column; /* Устанавливаем направление колонкой */
-            align-items: center; /* Центрируем элементы по горизонтали */
-        }
-    </style>-->
+   <style>
+       .task-container {
+        display: flex;
+        align-items: center;
+    }
+
+    form {
+        display: flex;
+        align-items: center;
+        margin-right: 10px;
+        margin-top: 10px; /* Отступ сверху */
+        margin-bottom: 10px; /* Отступ снизу */
+    }
+           .green-checkbox {
+       --color: green; /* Задаем желаемый цвет (здесь зеленый) */
+    }
+
+    .green-checkbox input[type="checkbox"] {
+       appearance: none; /* Скрываем стандартный вид чекбокса */
+       width: 1.375em; /* Ширина чекбокса */
+       height: 1.375em; /* Высота чекбокса */
+       margin-right: 10px; /* Отступ справа */
+       border: 2px solid var(--color); /* Устанавливаем цвет границы */
+       border-radius: 3px; /* Закругляем углы */
+    }
+
+    .green-checkbox input[type="checkbox"]:checked {
+       background-color: var(--color); /* Заливаем фон чекбокса выбранным цветом */
+    }
+       /* Скрыть оригинальную кнопку */
+/*button {
+    display: none;
+}*/
+
+/* Стилизация для фонового цвета и размера чекбокса */
+.checkbox-button {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-color: #3498db;
+    border: 1px solid #3498db;
+    cursor: pointer;
+}
+
+/* Стилизация для чекбокса, когда он отмечен */
+button:checked + label {
+    background-color: #2c3e50;
+}
+
+
+   </style>
 </head>
 <body class="text-center text-bg-dark">
 
 <p>Hello!</p>
+<form action = "/deleteAllTasks" method = "post" >
+
+    <button type="submit"> Reseat </button>
+</form>
+
 <div class="d-flex flex-column flex-md-row p-4 gap-4 py-md-5 align-items-center justify-content-center">
     <div class="list-group" >
         <div class="task-container" style="display: flex;"  th:each="task : ${tasks}">
-         <!--   <h3 class="task-id" th:text="${task.id}"></h3>-->
-            <form th:action="@{/updateTask/{id}(id=${task.id})}" method="post">
-                <input class="form-check-input flex-shrink-0" type="checkbox" th:value="${task.status}" checked=""style="font-size: 1.375em;" wfd-id="id26">
-                <input type="text" th:value="${task.description}" name="description" style="width: 500px; margin-right: 10px;" class="form-control" />
-                <input type="submit" value="Update" />
+            <form style="display: flex;" th:action="@{/updateTaskStatus/{id}(id=${task.id})}" method="post">
+                <button type = "submit"> Update status</button>
+           <!--     <input type="hidden" name="task" th:checked="${task}"/>-->
+                <input class="form-check-input flex-shrink-0" name="status" type="checkbox" th:checked="${task.status}" th:value = "${task.status}"/>
+
+           <input type="hidden" th:value="${task.status}"  style="width: 500px; margin-right: 10px;" class="form-control" />
+            </form>
+            <form style="display: flex;" th:action="@{/updateTask2/{id}(id=${task.id})}" method="post">
+               <!-- <div class="green-checkbox">
+                    <form th:action="@{/updateStatus/{id}(id=${task.id})}" style="display: flex;" method="post">
+
+                    </form>
+                     style="font-size: 1.375em; margin-right: 10px;" wfd-id="id26"
+                </div>-->
+
+                <input class="form-check-input flex-shrink-0" type="checkbox" name="status" th:checked="${task.status}"/>
+                    <input type="text" th:value="${task.description}" name="description" style="width: 500px; margin-right: 10px;" class="form-control" />
+                <input type="submit" value="Update" style ="margin-right: 10px;"/>
             </form>
             <form th:action="@{/deleteTask/{id}(id=${task.id})}" method="post">
                 <button type="submit">Delete</button>
+                
             </form>
-        </div>
 
+        </div>
         <form action = "some/add" method = "post">
             <input type="text" name="description" placeholder=" add new task">
             <button type="submit"> Add </button>
         </form>
+
         <div th:if="${#lists.isEmpty(tasks)}">
             <p>Список пустой</p>
         </div>
