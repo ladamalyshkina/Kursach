@@ -4,5 +4,5 @@ description text,
 task_date date,
 status boolean)
 
-insert into tasks (id_task, description, task_date) values
-(1,'lyalyalya','2024-05-15');
+insert into tasks (id_task, description, task_date,status) values
+(1,'lyalyalya','2024-05-15',false);

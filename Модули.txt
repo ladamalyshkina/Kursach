@@ -1,83 +1,3 @@
-package com.mytodolist.mytodolist.models;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
-@Entity
-public class Task {
-//    @Id
-//    @GeneratedValue (strategy = GenerationType.AUTO)
-//    private Long id;
-//    private String description;
-//
-//    public Long getId()
-//    {
-//        return id;
-//    }
-//
-//    public void setId(Long id)
-//    {
-//        this.id = id;s
-//    }
-//    public String getDescription()
-//    {
-//        return description;
-//    }
-//
-//    public void setDescription(String description)
-//    {
-//        this.description = description;
-//    }
-
-
-}
-
-
---
-
-package com.mytodolist.mytodolist.repositories;
-
-import org.springframework.data.repository.CrudRepository;
-
-public interface TaskRepository extends CrudRepository {
-}
-
---
-
-package com.mytodolist.mytodolist.controllers;
-
-import com.mytodolist.mytodolist.models.ToDoTask;
-import com.mytodolist.mytodolist.repositories.TaskToDoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.stereotype.Controller;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-@Controller
-public class ShowTableFromDBController {
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-    @Autowired
-    TaskToDoRepository taskToDoRepository;
-
-    @GetMapping("/showResults")
-    public String showResults(Model model) {
-       // List<Map<String, Object>> results = jdbcTemplate.queryForList("SELECT * FROM tasks");
-        Iterator<ToDoTask> tasks = (Iterator<ToDoTask>) taskToDoRepository.findAll();
-        model.addAttribute("tasks", tasks);
-        return "resultsTemplate";
-    }
-}
-
---
 package com.mytodolist.mytodolist.controllers;
 
 import com.mytodolist.mytodolist.models.ToDoTask;
@@ -114,43 +34,58 @@ public class ShowTableFromDBController {
 
     @GetMapping("/showResults")
     public String showResults(Model model) {
-        var Kek = mainService.readAll();
-
-        if (!Kek.isEmpty()) {
-            ToDoTask firstElement = Kek.get(0);
-            model.addAttribute("tasks", Kek);
-            System.out.println("Id: " + firstElement.getId());
-            System.out.println("Description: " + firstElement.getDescription());
-            System.out.println("Date: " + firstElement.getDate());
+        var taskList = mainService.readAllSortedByID();
+        if (!taskList.isEmpty()) {
+            model.addAttribute("tasks", taskList);
+           var progress =  mainService.countProgress();
+            model.addAttribute("progress", progress);
+            System.out.println("PROGRESS: " + progress);
         } else {
             System.out.println("Список пустой");
         }
-
         return "resultsTemplate";
     }
-    @PostMapping(value = "/updateTask/{id}") //@RequestBody ToDoTask client
-    public String update(@RequestBody String description,@PathVariable (value = "id") long id  ) {
+
+
+    @PostMapping(value = "/updateTask/{id}")
+    public String update(@PathVariable (value = "id") long id, @RequestParam String description, @RequestParam (value = "status", required = false) String status  ) {
         System.out.println("UPDATE");
-        ToDoTask task = repo.findById(id).orElseThrow();
-        // Optional<ToDoTask> task = repo.findById(id);
+        ToDoTask task = mainService.findTask(id);
+        if (status!=null) {
+            task.setStatus(true);
+            System.out.println("UPDATE");
+            System.out.println("STATUS" + status);
+        }
+        else {
+            task.setStatus(false);
+            System.out.println("STATUS IS NULL");
+        }
         task.setDescription(description);
-        repo.save(task);
+
+        mainService.update(task,id);
         return "redirect:/showResults";
     }
 
-    @PostMapping ("/some/add")
-    public String add(@RequestBody String description) {
-        Boolean status = false;
+
+    @PostMapping ("/addNewTask")
+    public String add(@RequestParam String description) {
         ToDoTask task = new ToDoTask(description);
-        repo.save(task);
+        mainService.create(task);
         return "redirect:/showResults";
     }
 
-    @RequestMapping(value = "/deleteTask/{id}") //@RequestBody ToDoTask client
+    @RequestMapping(value = "/deleteTask/{id}") //@RequestBody ToDoTask task
     public String delete(@PathVariable (value = "id") long id  ) {
         System.out.println("DELETE");
+        mainService.delete(id);
+        return "redirect:/showResults";
 
-       repo.deleteById(id);
+
+    }
+
+    @RequestMapping(value = "/deleteAllTasks") //@RequestBody ToDoTask task
+    public String deleteAll( ) {
+        mainService.deleteAll();
         return "redirect:/showResults";
 
 
@@ -160,225 +95,74 @@ public class ShowTableFromDBController {
 }
 
 --
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <script src="/docs/5.3/assets/js/color-modes.js"></script>
+package com.mytodolist.mytodolist.services;
 
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="">
-        <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-        <meta name="generator" content="Hugo 0.122.0">
+import com.mytodolist.mytodolist.models.ToDoTask;
+import com.mytodolist.mytodolist.repositories.TaskToDoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
 
-        <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/list-groups/">
+@Service
+public class MainService {
+    private  final  TaskToDoRepository taskToDoRepository;
 
-
-
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
-
-        <link href="/docs/5.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
-        <!-- Favicons -->
-        <link rel="apple-touch-icon" href="/docs/5.3/assets/img/favicons/apple-touch-icon.png" sizes="180x180">
-        <link rel="icon" href="/docs/5.3/assets/img/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
-        <link rel="icon" href="/docs/5.3/assets/img/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
-        <link rel="manifest" href="/docs/5.3/assets/img/favicons/manifest.json">
-        <link rel="mask-icon" href="/docs/5.3/assets/img/favicons/safari-pinned-tab.svg" color="#712cf9">
-        <link rel="icon" href="/docs/5.3/assets/img/favicons/favicon.ico">
-        <meta name="theme-color" content="#712cf9">
+    @Autowired
+    public MainService(TaskToDoRepository taskToDoRepository) {
+        this.taskToDoRepository = taskToDoRepository;
+    }
 
 
-        <style>
-            .bd-placeholder-img {
-              font-size: 1.125rem;
-              text-anchor: middle;
-              -webkit-user-select: none;
-              -moz-user-select: none;
-              user-select: none;
-            }
-
-            @media (min-width: 768px) {
-              .bd-placeholder-img-lg {
-                font-size: 3.5rem;
-              }
-            }
-
-            .b-example-divider {
-              width: 100%;
-              height: 3rem;
-              background-color: rgba(0, 0, 0, .1);
-              border: solid rgba(0, 0, 0, .15);
-              border-width: 1px 0;
-              box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
-            }
-
-            .b-example-vr {
-              flex-shrink: 0;
-              width: 1.5rem;
-              height: 100vh;
-            }
-
-            .bi {
-              vertical-align: -.125em;
-              fill: currentColor;
-            }
-
-            .nav-scroller {
-              position: relative;
-              z-index: 2;
-              height: 2.75rem;
-              overflow-y: hidden;
-            }
-
-            .nav-scroller .nav {
-              display: flex;
-              flex-wrap: nowrap;
-              padding-bottom: 1rem;
-              margin-top: -1px;
-              overflow-x: auto;
-              text-align: center;
-              white-space: nowrap;
-              -webkit-overflow-scrolling: touch;
-            }
-
-            .btn-bd-primary {
-              --bd-violet-bg: #712cf9;
-              --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
-
-              --bs-btn-font-weight: 600;
-              --bs-btn-color: var(--bs-white);
-              --bs-btn-bg: var(--bd-violet-bg);
-              --bs-btn-border-color: var(--bd-violet-bg);
-              --bs-btn-hover-color: var(--bs-white);
-              --bs-btn-hover-bg: #6528e0;
-              --bs-btn-hover-border-color: #6528e0;
-              --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
-              --bs-btn-active-color: var(--bs-btn-hover-color);
-              --bs-btn-active-bg: #5a23c8;
-              --bs-btn-active-border-color: #5a23c8;
-            }
-
-            .bd-mode-toggle {
-              z-index: 1500;
-            }
-
-            .bd-mode-toggle .dropdown-menu .active .bi {
-              display: block !important;
-            }
-        </style>
+    public void create(ToDoTask task) {
+        taskToDoRepository.save(task);
+    }
 
 
-        <!-- Custom styles for this template -->
+    public  List<ToDoTask> readAll() {
+        return taskToDoRepository.findAll();
+    }
+    public List<ToDoTask> readAllSortedByID() {
+        System.out.println("READ SORTED BY DATE");
+        return taskToDoRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+    }
 
+    public void update(ToDoTask task, long id) {
+        if (taskToDoRepository.existsById(id)) {
+            task.setId(id);
+            taskToDoRepository.save(task);
 
-    <title>Todo List</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <link rel = "stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    <!--<style>
-        .task-container {
-            display: flex;
-            flex-direction: column; /* Устанавливаем направление колонкой */
-            align-items: center; /* Центрируем элементы по горизонтали */
         }
-    </style>-->
-</head>
-<body class="text-center text-bg-dark">
 
-<p>Hello!</p>
-<div class="d-flex flex-column flex-md-row p-4 gap-4 py-md-5 align-items-center justify-content-center">
-    <div class="list-group" >
-        <div class="task-container" style="display: flex;"  th:each="task : ${tasks}">
-         <!--   <h3 class="task-id" th:text="${task.id}"></h3>-->
-            <form th:action="@{/updateTask/{id}(id=${task.id})}" method="post">
-                <input type="text" th:value="${task.description}" name="description" style="width: 500px; margin-right: 10px;" class="form-control" />
-                <input type="submit" value="Update" />
-            </form>
-            <form th:action="@{/deleteTask/{id}(id=${task.id})}" method="post">
-                <button type="submit">Delete</button>
-            </form>
-        </div>
+    }
+    public ToDoTask findTask(long id)
+    {
+      return taskToDoRepository.findById(id).orElseThrow();
+    }
+    public double countProgress()
+    {
+     long tasksCount = taskToDoRepository.count();
+     System.out.println("ALL TASKS: " + tasksCount);
+     if (tasksCount !=0) {
 
-        <form action = "some/add" method = "post">
-            <input type="text" name="description" placeholder=" add new task">
-            <button type="submit"> Add </button>
-        </form>
-        <div th:if="${#lists.isEmpty(tasks)}">
-            <p>Список пустой</p>
-        </div>
-        <div class="list-group">
-        <label class="list-group-item d-flex gap-3">
-            <input class="form-check-input flex-shrink-0" type="checkbox" value="" checked="" style="font-size: 1.375em;" wfd-id="id24">
-            <span class="pt-1 form-checked-content">
-        <strong>Finish sales report</strong>
-        <small class="d-block text-body-secondary">
-          <svg class="bi me-1" width="1em" height="1em"><use xlink:href="#calendar-event"></use></svg>
-          1:00–2:00pm
-        </small>
-      </span>
-        </label>
-        <label class="list-group-item d-flex gap-3">
-            <input class="form-check-input flex-shrink-0" type="checkbox" value="" style="font-size: 1.375em;" wfd-id="id25">
-            <span class="pt-1 form-checked-content">
-        <strong>Weekly All Hands</strong>
-        <small class="d-block text-body-secondary">
-          <svg class="bi me-1" width="1em" height="1em"><use xlink:href="#calendar-event"></use></svg>
-          2:00–2:30pm
-        </small>
-      </span>
-        </label>
-        <label class="list-group-item d-flex gap-3">
-            <input class="form-check-input flex-shrink-0" type="checkbox" value="" style="font-size: 1.375em;" wfd-id="id26">
-            <span class="pt-1 form-checked-content">
-        <strong>Out of office</strong>
-        <small class="d-block text-body-secondary">
-          <svg class="bi me-1" width="1em" height="1em"><use xlink:href="#alarm"></use></svg>
-          Tomorrow
-        </small>
-      </span>
-        </label>
-        <label class="list-group-item d-flex gap-3 bg-body-tertiary">
-            <input class="form-check-input form-check-input-placeholder bg-body-tertiary flex-shrink-0 pe-none" disabled="" type="checkbox" value="" style="font-size: 1.375em;" wfd-id="id27">
-            <span class="pt-1 form-checked-content">
-        <span contenteditable="true" class="w-100">Add new task...</span>
-        <small class="d-block text-body-secondary">
-          <svg class="bi me-1" width="1em" height="1em"><use xlink:href="#list-check"></use></svg>
-          Choose list...
-        </small>
-      </span>
-        </label>
-    </div>
-</div>
-</div>
-</div>
+        var completedTasks = taskToDoRepository.findAllByStatus(true);
+        System.out.println("ONLY TRUE: " + completedTasks.size());
+        double percentCompleted = ((double) completedTasks.size() / tasksCount) * 100;
+         return Math.round(percentCompleted * 100.0) / 100.0;
+    }
+    else {
+        return 0.0;
+    }
 
-<div class="list-group list-group-checkable d-grid gap-2 border-0">
-    <input class="list-group-item-check pe-none" type="radio" name="listGroupCheckableRadios" id="listGroupCheckableRadios1" value="" checked="" wfd-id="id28">
-    <label class="list-group-item rounded-3 py-3" for="listGroupCheckableRadios1">
-        First radio
-        <span class="d-block small opacity-50">With support text underneath to add more detail</span>
-    </label>
+}
+    public void deleteAll() {
+      taskToDoRepository.deleteAll();
+    }
 
-    <input class="list-group-item-check pe-none" type="radio" name="listGroupCheckableRadios" id="listGroupCheckableRadios2" value="" wfd-id="id29">
-    <label class="list-group-item rounded-3 py-3" for="listGroupCheckableRadios2">
-        Second radio
-        <span class="d-block small opacity-50">Some other text goes here</span>
-    </label>
-
-    <input class="list-group-item-check pe-none" type="radio" name="listGroupCheckableRadios" id="listGroupCheckableRadios3" value="" wfd-id="id30">
-    <label class="list-group-item rounded-3 py-3" for="listGroupCheckableRadios3">
-        Third radio
-        <span class="d-block small opacity-50">And we end with another snippet of text</span>
-    </label>
-
-    <input class="list-group-item-check pe-none" type="radio" name="listGroupCheckableRadios" id="listGroupCheckableRadios4" value="" disabled="" wfd-id="id31">
-    <label class="list-group-item rounded-3 py-3" for="listGroupCheckableRadios4">
-        Fourth disabled radio
-        <span class="d-block small opacity-50">This option is disabled</span>
-    </label>
-</div>
-
-</body>
-</html>
-
+    public void delete(long id) {
+        if (taskToDoRepository.existsById(id)) {
+            taskToDoRepository.deleteById(id);
+        }
+    }
+}
