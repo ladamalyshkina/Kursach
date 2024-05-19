@@ -184,15 +184,16 @@ button:checked + label {
 
            <input type="hidden" th:value="${task.status}"  style="width: 500px; margin-right: 10px;" class="form-control" />
             </form>
-            <form style="display: flex;" th:action="@{/updateTask2/{id}(id=${task.id})}" method="post">
+            <form style="display: flex;" th:action="@{/updateTask/{id}(id=${task.id})}" method="post">
                <!-- <div class="green-checkbox">
                     <form th:action="@{/updateStatus/{id}(id=${task.id})}" style="display: flex;" method="post">
 
                     </form>
                      style="font-size: 1.375em; margin-right: 10px;" wfd-id="id26"
                 </div>-->
-
-                <input class="form-check-input flex-shrink-0" type="checkbox" name="status" th:checked="${task.status}"/>
+                <div class="green-checkbox">
+                <input class="form-check-input flex-shrink-0" name="status" type="checkbox" th:checked="${task.status}" th:value = "${task.status}"/>
+                </div>
                     <input type="text" th:value="${task.description}" name="description" style="width: 500px; margin-right: 10px;" class="form-control" />
                 <input type="submit" value="Update" style ="margin-right: 10px;"/>
             </form>
@@ -200,10 +201,13 @@ button:checked + label {
                 <button type="submit">Delete</button>
                 
             </form>
-
         </div>
-        <form action = "some/add" method = "post">
-            <input type="text" name="description" placeholder=" add new task">
+
+        <div>
+            <p th:text="|Hello, ${progress} %!|"/>
+        </div>
+        <form action = "/addNewTask" method = "post">
+            <input type="text" name="description" placeholder="add new task" style="width: 500px; margin-right: 10px;">
             <button type="submit"> Add </button>
         </form>
 

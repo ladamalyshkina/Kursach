@@ -34,14 +34,17 @@ public class ShowTableFromDBController {
 
     @GetMapping("/showResults")
     public String showResults(Model model) {
-        var Kek = mainService.readAllSortedByDate();
+        var taskList = mainService.readAllSortedByDate();
 
-        if (!Kek.isEmpty()) {
-            ToDoTask firstElement = Kek.get(0);
-            model.addAttribute("tasks", Kek);
-            System.out.println("Id: " + firstElement.getId());
-            System.out.println("Description: " + firstElement.getDescription());
-            System.out.println("Date: " + firstElement.getDate());
+        if (!taskList.isEmpty()) {
+          //  ToDoTask firstElement = taskList.get(0);
+            model.addAttribute("tasks", taskList);
+//            System.out.println("Id: " + firstElement.getId());
+//            System.out.println("Description: " + firstElement.getDescription());
+//            System.out.println("Date: " + firstElement.getDate());
+           var progress =  mainService.countProgress();
+            model.addAttribute("progress", progress);
+            System.out.println("PROGRESS: " + progress);
         } else {
             System.out.println("Список пустой");
         }
@@ -49,40 +52,10 @@ public class ShowTableFromDBController {
         return "resultsTemplate";
     }
 
-    @PostMapping(value = "/updateStatus/{id}") //@RequestBody ToDoTask client
-    public String updateStatus(@RequestParam Boolean status,@PathVariable (value = "id") long id  ) {
-        System.out.println("UPDATE STATUS");
-        ToDoTask task = repo.findById(id).orElseThrow();
 
-        task.setStatus(status);
-        repo.save(task);
-        return "redirect:/showResults";
-    }
     @PostMapping(value = "/updateTask/{id}") //@RequestBody ToDoTask client
-    public String update(@RequestParam String description,@PathVariable (value = "id") long id  ) {
+    public String update(@PathVariable (value = "id") long id, @RequestParam String description, @RequestParam (value = "status", required = false) String status  ) {
         System.out.println("UPDATE");
-        ToDoTask task = repo.findById(id).orElseThrow();
-        task.setDescription(description);
-     //   System.out.println("STATUS"+ status);
-     //   task.setStatus(status);
-        repo.save(task);
-        return "redirect:/showResults";
-    }
-
-    @PostMapping(value = "/updateTask2/{id}") //@RequestBody ToDoTask client
-    public String update2(@PathVariable (value = "id") long id, @RequestParam String description,@RequestParam Boolean status ) {
-        System.out.println("UPDATE");
-        ToDoTask task = repo.findById(id).orElseThrow();
-        task.setDescription(description);
-        task.setStatus(status);
-        //   System.out.println("STATUS"+ status);
-        //   task.setStatus(status);
-        repo.save(task);
-        return "redirect:/showResults";
-    }
-
-    @PostMapping(value = "/updateTaskStatus/{id}") //@RequestBody ToDoTask client
-    public String updateTaskStatus(@PathVariable (value = "id") long id, @RequestParam (value = "status", required = false) String status ) {
         ToDoTask task = repo.findById(id).orElseThrow();
         if (status!=null) {
             task.setStatus(true);
@@ -93,18 +66,37 @@ public class ShowTableFromDBController {
             task.setStatus(false);
             System.out.println("STATUS IS NULL");
         }
-
-//
-//        task.setStatus(status);
-//          System.out.println("STATUS"+ status);
-        //   task.setStatus(status);
+        task.setDescription(description);
+     //   System.out.println("STATUS"+ status);
+     //   task.setStatus(status);
         repo.save(task);
         return "redirect:/showResults";
     }
 
-    @PostMapping ("/some/add")
+
+//    @PostMapping(value = "/updateTaskStatus/{id}") //@RequestBody ToDoTask client
+//    public String updateTaskStatus(@PathVariable (value = "id") long id, @RequestParam (value = "status", required = false) String status ) {
+//        ToDoTask task = repo.findById(id).orElseThrow();
+//        if (status!=null) {
+//            task.setStatus(true);
+//            System.out.println("UPDATE");
+//            System.out.println("STATUS" + status);
+//        }
+//        else {
+//            task.setStatus(false);
+//            System.out.println("STATUS IS NULL");
+//        }
+//
+////
+////        task.setStatus(status);
+////          System.out.println("STATUS"+ status);
+//        //   task.setStatus(status);
+//        repo.save(task);
+//        return "redirect:/showResults";
+//    }
+
+    @PostMapping ("/addNewTask")
     public String add(@RequestParam String description) {
-        Boolean status = false;
         ToDoTask task = new ToDoTask(description);
         repo.save(task);
         return "redirect:/showResults";
