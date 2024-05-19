@@ -68,7 +68,7 @@ public class ShowTableFromDBController {
         return "redirect:/showResults";
     }
 
-    @RequestMapping(value = "/deleteTask/{id}") //@RequestBody ToDoTask task
+    @RequestMapping(value = "/deleteTask/{id}")
     public String delete(@PathVariable (value = "id") long id  ) {
         mainService.delete(id);
         return "redirect:/showResults";
@@ -76,11 +76,10 @@ public class ShowTableFromDBController {
 
     }
 
-    @RequestMapping(value = "/deleteAllTasks") //@RequestBody ToDoTask task
+    @RequestMapping(value = "/deleteAllTasks")
     public String deleteAll( ) {
         mainService.deleteAll();
         return "redirect:/showResults";
-
 
     }
 

@@ -27,7 +27,6 @@ public class MainService {
         return taskToDoRepository.findAll();
     }
     public List<ToDoTask> readAllSortedByID() {
-        System.out.println("READ SORTED BY DATE");
         return taskToDoRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
     }
 
@@ -46,11 +45,9 @@ public class MainService {
     public double countProgress()
     {
         long tasksCount = taskToDoRepository.count();
-        System.out.println("ALL TASKS: " + tasksCount);
         if (tasksCount !=0) {
 
             var completedTasks = taskToDoRepository.findAllByStatus(true);
-            System.out.println("ONLY TRUE: " + completedTasks.size());
             double percentCompleted = ((double) completedTasks.size() / tasksCount) * 100;
             return Math.round(percentCompleted * 100.0) / 100.0;
         }

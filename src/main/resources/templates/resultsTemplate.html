@@ -166,11 +166,21 @@
 
     </style>
 </head>
+
 <body class="text-center text-bg-dark">
-
-<p>Hello!</p>
+<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+    <header class="mb-auto">
+        <div>
+            <h3 class="float-md-start mb-0">ToDo list</h3>
+            <nav class="nav nav-masthead justify-content-center float-md-end">
+                <a class="nav-link fw-bold py-1 px-0 active" style="margin-right: 5px;"  aria-current="page" href="#">Home</a>
+                <a class="nav-link fw-bold py-1 px-0" style="margin-right: 5px;" href="#">Calendar</a>
+                <a class="nav-link fw-bold py-1 px-0" style="margin-right: 5px;" href="#">Account</a>
+            </nav>
+        </div>
+    </header>
+<h1>To Do</h1>
 <form action = "/deleteAllTasks" method = "post" >
-
     <button type="submit"> Reseat </button>
 </form>
 
@@ -179,105 +189,34 @@
         <div class="task-container" style="display: flex;"  th:each="task : ${tasks}">
 
             <form style="display: flex;" th:action="@{/updateTask/{id}(id=${task.id})}" method="post">
-                <!-- <div class="green-checkbox">
-                     <form th:action="@{/updateStatus/{id}(id=${task.id})}" style="display: flex;" method="post">
 
-                     </form>
-                      style="font-size: 1.375em; margin-right: 10px;" wfd-id="id26"
-                 </div>-->
                 <div class="green-checkbox">
                     <input class="form-check-input flex-shrink-0" name="status" type="checkbox" th:checked="${task.status}" th:value = "${task.status}"/>
                 </div>
-                <input type="text" th:value="${task.description}" name="description" style="width: 500px; margin-right: 10px;" class="form-control" />
+                <input type="text"  th:value="${task.description}" name="description" style="width: 500px; margin-right: 10px;" class="form-control" />
                 <input type="submit" value="Update" style ="margin-right: 10px;"/>
             </form>
             <form th:action="@{/deleteTask/{id}(id=${task.id})}" method="post">
-                <button type="submit">Delete</button>
+                <button type="submit"> Delete </button>
 
             </form>
         </div>
 
         <div>
-            <p th:text="|Hello, ${progress} %!|"/>
+            <p th:text="|PROGRESS ${progress} %|"/>
         </div>
-        <form action = "/addNewTask" method = "post">
-            <input type="text" name="description" placeholder="add new task" style="width: 500px; margin-right: 10px;">
+
+        <form action = "/addNewTask" method = "post" >
+            <input type="text" class="form-control" style=" width: 500px; margin-left: 33px; margin-right: 10px;" name="description" placeholder="add new task">
             <button type="submit"> Add </button>
         </form>
+
 
         <div th:if="${#lists.isEmpty(tasks)}">
             <p>Список пустой</p>
         </div>
-        <div class="list-group">
-            <label class="list-group-item d-flex gap-3">
-                <input class="form-check-input flex-shrink-0" type="checkbox" value="" checked="" style="font-size: 1.375em;" wfd-id="id24">
-                <span class="pt-1 form-checked-content">
-        <strong>Finish sales report</strong>
-        <small class="d-block text-body-secondary">
-          <svg class="bi me-1" width="1em" height="1em"><use xlink:href="#calendar-event"></use></svg>
-          1:00–2:00pm
-        </small>
-      </span>
-            </label>
-            <label class="list-group-item d-flex gap-3">
-                <input class="form-check-input flex-shrink-0" type="checkbox" value="" style="font-size: 1.375em;" wfd-id="id25">
-                <span class="pt-1 form-checked-content">
-        <strong>Weekly All Hands</strong>
-        <small class="d-block text-body-secondary">
-          <svg class="bi me-1" width="1em" height="1em"><use xlink:href="#calendar-event"></use></svg>
-          2:00–2:30pm
-        </small>
-      </span>
-            </label>
-            <label class="list-group-item d-flex gap-3">
-                <input class="form-check-input flex-shrink-0" type="checkbox" value="" style="font-size: 1.375em;" wfd-id="id26">
-                <span class="pt-1 form-checked-content">
-        <strong>Out of office</strong>
-        <small class="d-block text-body-secondary">
-          <svg class="bi me-1" width="1em" height="1em"><use xlink:href="#alarm"></use></svg>
-          Tomorrow
-        </small>
-      </span>
-            </label>
-            <label class="list-group-item d-flex gap-3 bg-body-tertiary">
-                <input class="form-check-input form-check-input-placeholder bg-body-tertiary flex-shrink-0 pe-none" disabled="" type="checkbox" value="" style="font-size: 1.375em;" wfd-id="id27">
-                <span class="pt-1 form-checked-content">
-        <span contenteditable="true" class="w-100">Add new task...</span>
-        <small class="d-block text-body-secondary">
-          <svg class="bi me-1" width="1em" height="1em"><use xlink:href="#list-check"></use></svg>
-          Choose list...
-        </small>
-      </span>
-            </label>
-        </div>
     </div>
 </div>
-</div>
-
-<div class="list-group list-group-checkable d-grid gap-2 border-0">
-    <input class="list-group-item-check pe-none" type="radio" name="listGroupCheckableRadios" id="listGroupCheckableRadios1" value="" checked="" wfd-id="id28">
-    <label class="list-group-item rounded-3 py-3" for="listGroupCheckableRadios1">
-        First radio
-        <span class="d-block small opacity-50">With support text underneath to add more detail</span>
-    </label>
-
-    <input class="list-group-item-check pe-none" type="radio" name="listGroupCheckableRadios" id="listGroupCheckableRadios2" value="" wfd-id="id29">
-    <label class="list-group-item rounded-3 py-3" for="listGroupCheckableRadios2">
-        Second radio
-        <span class="d-block small opacity-50">Some other text goes here</span>
-    </label>
-
-    <input class="list-group-item-check pe-none" type="radio" name="listGroupCheckableRadios" id="listGroupCheckableRadios3" value="" wfd-id="id30">
-    <label class="list-group-item rounded-3 py-3" for="listGroupCheckableRadios3">
-        Third radio
-        <span class="d-block small opacity-50">And we end with another snippet of text</span>
-    </label>
-
-    <input class="list-group-item-check pe-none" type="radio" name="listGroupCheckableRadios" id="listGroupCheckableRadios4" value="" disabled="" wfd-id="id31">
-    <label class="list-group-item rounded-3 py-3" for="listGroupCheckableRadios4">
-        Fourth disabled radio
-        <span class="d-block small opacity-50">This option is disabled</span>
-    </label>
 </div>
 
 </body>
