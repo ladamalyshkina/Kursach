@@ -36,4 +36,5 @@ CheckBox презназначен для того, что бы отметить 
 Тест check_testAddTask — проверка корректной работы url-адреса /addNewTask
 
 Тест testDeleteTask — проверка корректной работы url-адреса /deleteTask/{id}
+
 Тест testDeleteTask — проверка корректной работы url-адреса /checkDBConnection
