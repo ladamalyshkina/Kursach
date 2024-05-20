@@ -25,6 +25,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.postgresql:postgresql'
 	implementation 'org.apache.maven:maven-artifact:3.6.3'
+	testImplementation 'junit:junit:4.12'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
